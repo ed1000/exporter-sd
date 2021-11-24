@@ -1,0 +1,8 @@
+coverage==6.1.2
+    # via
+    #   -r requirements-test.in
+    #   nose2
+nose2==0.10.0
+    # via -r requirements-test.in
+six==1.16.0
+    # via nose2

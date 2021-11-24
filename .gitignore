@@ -1,0 +1,10 @@
+exporter.db
+
+venv
+
+.vscode
+
+.eggs
+.tox
+*.egg-info
+__pycache__
