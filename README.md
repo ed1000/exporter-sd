@@ -17,7 +17,7 @@ To run the docker container:
 ### Environment variables
 
 The docker container supports 3 environment variables:
+
 - **DB_URL**: the URL for the database to be used
 - **LCM_PASSWORD**: the password to be used by LCM to access the service
 - **PROMETHEUS_PASSWORD**: the password to be used by Prometheus to access the service
-
