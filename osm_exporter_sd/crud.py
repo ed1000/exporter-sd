@@ -47,8 +47,5 @@ def create_exporter(db: Session, exporter: schemas.ExporterCreate):
 
 
 def delete_exporter(db: Session, exporter_osm_id: str):
-    return (
-        db.query(models.Exporter)
-        .filter(models.Exporter.osm_id == exporter_osm_id)
-        .delete()
-    )
+    db.query(models.Exporter).filter(models.Exporter.osm_id == exporter_osm_id).delete()
+    db.commit()

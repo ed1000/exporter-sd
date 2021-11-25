@@ -1,0 +1,39 @@
+FROM ubuntu:20.04 as INSTALL
+
+WORKDIR /build
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get --yes update && \
+    DEBIAN_FRONTEND=noninteractive apt-get --yes install \
+    python3=3.8.* \
+    python3-dev=3.8.* \
+    python3-venv=3.8.* \
+    python3-pip=20.0.* \
+    python3-setuptools=45.2.* && \
+    python3 -m pip install -U pip==21.3.* build==0.7.*
+
+COPY requirements.txt /build/requirements.txt
+
+RUN python3 -m pip install -r requirements.txt
+
+FROM ubuntu:20.04 as FINAL
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get --yes update && \
+    DEBIAN_FRONTEND=noninteractive apt-get --yes install \
+    python3-minimal=3.8.*
+
+COPY --from=INSTALL /usr/lib/python3/dist-packages /usr/lib/python3/dist-packages
+COPY --from=INSTALL /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
+
+WORKDIR /app
+
+COPY osm_exporter_sd /app/osm_exporter_sd
+
+EXPOSE 8000
+
+ENV DB_URL sqlite:///exporter.db
+#ENV DB_URL mysql://user:password@host/database
+
+ENV LCM_PASSWORD lcm_password
+ENV PROMETHEUS_PASSWORD prometheus_password
+
+CMD ["python3", "-m", "uvicorn", "osm_exporter_sd.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000"]
