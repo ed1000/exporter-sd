@@ -4,6 +4,9 @@ venv
 
 .vscode
 
+.coverage
+coverage.xml
+
 .eggs
 .tox
 *.egg-info

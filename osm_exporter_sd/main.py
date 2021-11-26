@@ -58,9 +58,19 @@ async def register_exporter(
     db: Session = Depends(get_db),
     username: str = Depends(check_lcm_credentials),
 ):
-    db_exporter = crud.get_exporter(db=db, exporter_osm_id=exporter.osm_id)
-    if db_exporter:
-        raise HTTPException(status_code=400, detail="Exporter already exists")
+    db_exporter_by_id = crud.get_exporter(db=db, exporter_osm_id=exporter.osm_id)
+    db_exporter_by_url = crud.get_exporter(
+        db=db, exporter_target_url=exporter.target_url
+    )
+    if db_exporter_by_id or db_exporter_by_url:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Exporter already exists with the same osm_id"
+                if db_exporter_by_id
+                else "Exporter already exists with the same target_url"
+            ),
+        )
     return crud.create_exporter(db=db, exporter=exporter)
 
 
@@ -96,12 +106,12 @@ async def delete_exporter(
     crud.delete_exporter(db=db, exporter_osm_id=exporter_osm_id)
 
 
-@app.get("/prometheus", response_model=List[schemas.ExporterShow])
+@app.get("/prometheus", response_model=List[schemas.ExporterPrometheusShow])
 async def list_exporters_for_prometheus(
     response: Response,
     db: Session = Depends(get_db),
     username: str = Depends(check_prometheus_credentials),
 ):
     response.headers["X-Prometheus-Refresh-Interval-Seconds"] = "60"
-    db_exporters = crud.get_exporters(db=db)
+    db_exporters = crud.get_exporters(db=db, prometheus=True)
     return db_exporters

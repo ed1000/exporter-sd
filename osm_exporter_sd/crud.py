@@ -10,18 +10,39 @@ def _transform_exporter(exporter: models.Exporter):
     )
 
 
-def get_exporter(db: Session, exporter_osm_id: str):
-    db_exporter = (
-        db.query(models.Exporter)
-        .filter(models.Exporter.osm_id == exporter_osm_id)
-        .first()
-    )
+def _transform_prometheus_exporter(exporter: models.Exporter):
+    labels = {label.label_key: label.label_value for label in exporter.labels}
+    return schemas.ExporterPrometheusShow(targets=[exporter.target_url], labels=labels)
+
+
+def get_exporter(
+    db: Session, exporter_osm_id: str = None, exporter_target_url: str = None
+):
+    db_exporter = None
+
+    if exporter_osm_id:
+        db_exporter = (
+            db.query(models.Exporter)
+            .filter(models.Exporter.osm_id == exporter_osm_id)
+            .first()
+        )
+    elif exporter_target_url:
+        db_exporter = (
+            db.query(models.Exporter)
+            .filter(models.Exporter.target_url == exporter_target_url)
+            .first()
+        )
+
     return _transform_exporter(db_exporter) if db_exporter else db_exporter
 
 
-def get_exporters(db: Session):
+def get_exporters(db: Session, prometheus: bool = False):
     db_exporters = db.query(models.Exporter).all()
-    return [_transform_exporter(exporter) for exporter in db_exporters]
+    return (
+        [_transform_exporter(exporter) for exporter in db_exporters]
+        if not prometheus
+        else [_transform_prometheus_exporter(exporter) for exporter in db_exporters]
+    )
 
 
 def create_exporter(db: Session, exporter: schemas.ExporterCreate):

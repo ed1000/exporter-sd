@@ -16,16 +16,21 @@ class Label(LabelBase):
 
 
 class ExporterBase(BaseModel):
-    osm_id: str
     target_url: str
 
 
 class ExporterCreate(ExporterBase):
+    osm_id: str
     labels: Dict[str, str] = {}
 
 
 class ExporterShow(ExporterCreate):
     pass
+
+
+class ExporterPrometheusShow(BaseModel):
+    targets: List[str]
+    labels: Dict[str, str] = {}
 
 
 class Exporter(ExporterBase):
