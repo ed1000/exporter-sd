@@ -52,7 +52,7 @@ def check_prometheus_credentials(credentials: HTTPBasicCredentials = Depends(sec
     return credentials.username
 
 
-@app.post("/exporters/", response_model=schemas.ExporterShow)
+@app.post("/exporters", response_model=schemas.ExporterShow)
 async def register_exporter(
     exporter: schemas.ExporterCreate,
     db: Session = Depends(get_db),
@@ -64,7 +64,7 @@ async def register_exporter(
     return crud.create_exporter(db=db, exporter=exporter)
 
 
-@app.get("/exporters/", response_model=List[schemas.ExporterShow])
+@app.get("/exporters", response_model=List[schemas.ExporterShow])
 async def list_exporters(
     db: Session = Depends(get_db), username: str = Depends(check_lcm_credentials)
 ):
@@ -96,7 +96,7 @@ async def delete_exporter(
     crud.delete_exporter(db=db, exporter_osm_id=exporter_osm_id)
 
 
-@app.get("/prometheus/", response_model=List[schemas.ExporterShow])
+@app.get("/prometheus", response_model=List[schemas.ExporterShow])
 async def list_exporters_for_prometheus(
     response: Response,
     db: Session = Depends(get_db),
